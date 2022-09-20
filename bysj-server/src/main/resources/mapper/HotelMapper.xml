@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spring.dao.HotelMapper">
+    <resultMap id="BaseResultMap" type="com.spring.entity.Hotel">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+                            <result column="hotel_name" property="hotelName" jdbcType="VARCHAR"/>
+                                    <result column="hotel_address" property="hotelAddress" jdbcType="VARCHAR"/>
+                                    <result column="hotel_star" property="hotelStar" jdbcType="INTEGER"/>
+                                    <result column="hotel_city" property="hotelCity" jdbcType="VARCHAR"/>
+                                    <result column="hotel_money" property="hotelMoney" jdbcType="INTEGER"/>
+                                    <result column="hotel_introduce" property="hotelIntroduce" jdbcType="DECIMAL"/>
+                                    <result column="hotel_picture" property="hotelPicture" jdbcType="VARCHAR"/>
+
+                                
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, hotel_name, hotel_address, hotel_star, hotel_city, hotel_money, hotel_introduce, hotel_picture   </sql>
+
+
+    </mapper>

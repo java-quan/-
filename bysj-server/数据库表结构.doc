@@ -1,0 +1,838 @@
+
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<!--<html>-->
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【收藏记录】模块,表名：<span style="color: #990000">shoucangjilu</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>username</td>
+        <td>varchar(255)</td>
+        <td>收藏用户 </td>
+    </tr>
+        <tr>
+        <td>xwid</td>
+        <td>int</td>
+        <td>对应模块id </td>
+    </tr>
+        <tr>
+        <td>biao</td>
+        <td>varchar(255)</td>
+        <td>收藏得模块 </td>
+    </tr>
+        <tr>
+        <td>biaoti</td>
+        <td>varchar(255)</td>
+        <td>显示的标题 </td>
+    </tr>
+        <tr>
+        <td>url</td>
+        <td>varchar(512)</td>
+        <td>收藏URL </td>
+    </tr>
+        <tr>
+        <td>ziduan</td>
+        <td>varchar(255)</td>
+        <td>对应模块字段 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【前端登录凭证】模块,表名：<span style="color: #990000">token</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>token</td>
+        <td>char(32)</td>
+        <td>唯一值 </td>
+    </tr>
+        <tr>
+        <td>session</td>
+        <td>text</td>
+        <td>保存得数据 </td>
+    </tr>
+        <tr>
+        <td>cx</td>
+        <td>varchar(50)</td>
+        <td>登录权限 </td>
+    </tr>
+        <tr>
+        <td>login</td>
+        <td>varchar(50)</td>
+        <td>登录模块 </td>
+    </tr>
+        <tr>
+        <td>username</td>
+        <td>varchar(50)</td>
+        <td>登录用户 </td>
+    </tr>
+        <tr>
+        <td>valueid</td>
+        <td>varchar(50)</td>
+        <td>用户id </td>
+    </tr>
+        <tr>
+        <td>token_time</td>
+        <td>timestamp </td>
+        <td>当前时间 </td>
+    </tr>
+    
+                                <tr>
+            <td colspan="3">
+                ，
+                字段：token ，
+                设置主键为token            </td>
+        </tr>
+                </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【管理员】模块,表名：<span style="color: #990000">admins</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>username</td>
+        <td>varchar(50)</td>
+        <td>帐号 </td>
+    </tr>
+        <tr>
+        <td>pwd</td>
+        <td>varchar(50)</td>
+        <td>密码 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【用户】模块,表名：<span style="color: #990000">yonghu</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>yonghuming</td>
+        <td>varchar(50)</td>
+        <td>用户名 </td>
+    </tr>
+        <tr>
+        <td>mima</td>
+        <td>varchar(50)</td>
+        <td>密码 </td>
+    </tr>
+        <tr>
+        <td>xingming</td>
+        <td>varchar(50)</td>
+        <td>姓名 </td>
+    </tr>
+        <tr>
+        <td>xingbie</td>
+        <td>varchar(255)</td>
+        <td>性别 </td>
+    </tr>
+        <tr>
+        <td>shouji</td>
+        <td>varchar(50)</td>
+        <td>手机 </td>
+    </tr>
+        <tr>
+        <td>youxiang</td>
+        <td>varchar(50)</td>
+        <td>邮箱 </td>
+    </tr>
+        <tr>
+        <td>shenfenzheng</td>
+        <td>varchar(50)</td>
+        <td>身份证 </td>
+    </tr>
+        <tr>
+        <td>touxiang</td>
+        <td>varchar(255)</td>
+        <td>头像 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【新闻分类】模块,表名：<span style="color: #990000">xinwenfenlei</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>fenleimingcheng</td>
+        <td>varchar(50)</td>
+        <td>分类名称 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【新闻信息】模块,表名：<span style="color: #990000">xinwenxinxi</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>biaoti</td>
+        <td>varchar(255)</td>
+        <td>标题 </td>
+    </tr>
+        <tr>
+        <td>fenlei</td>
+        <td>int</td>
+        <td>分类 </td>
+    </tr>
+        <tr>
+        <td>tupian</td>
+        <td>varchar(255)</td>
+        <td>图片 </td>
+    </tr>
+        <tr>
+        <td>tianjiaren</td>
+        <td>varchar(50)</td>
+        <td>添加人 </td>
+    </tr>
+        <tr>
+        <td>dianjilv</td>
+        <td>int</td>
+        <td>点击率 </td>
+    </tr>
+        <tr>
+        <td>neirong</td>
+        <td>longtext</td>
+        <td>内容 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                                <tr>
+            <td colspan="3">
+                设置索引，
+                字段：fenlei ，
+                关联表【xinwenfenlei】中的id 字段            </td>
+        </tr>
+                </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【友情链接】模块,表名：<span style="color: #990000">youqinglianjie</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>wangzhanmingcheng</td>
+        <td>varchar(50)</td>
+        <td>网站名称 </td>
+    </tr>
+        <tr>
+        <td>wangzhi</td>
+        <td>varchar(50)</td>
+        <td>网址 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【留言板】模块,表名：<span style="color: #990000">liuyanban</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>xingming</td>
+        <td>varchar(50)</td>
+        <td>姓名 </td>
+    </tr>
+        <tr>
+        <td>lianxidianhua</td>
+        <td>varchar(50)</td>
+        <td>联系电话 </td>
+    </tr>
+        <tr>
+        <td>liuyanneirong</td>
+        <td>text</td>
+        <td>留言内容 </td>
+    </tr>
+        <tr>
+        <td>liuyanren</td>
+        <td>varchar(50)</td>
+        <td>留言人 </td>
+    </tr>
+        <tr>
+        <td>huifuneirong</td>
+        <td>text</td>
+        <td>回复内容 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【轮播图】模块,表名：<span style="color: #990000">lunbotu</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>title</td>
+        <td>varchar(50)</td>
+        <td>标题 </td>
+    </tr>
+        <tr>
+        <td>image</td>
+        <td>varchar(255)</td>
+        <td>图片 </td>
+    </tr>
+        <tr>
+        <td>url</td>
+        <td>varchar(255)</td>
+        <td>连接地址 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【景点信息】模块,表名：<span style="color: #990000">jingdianxinxi</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>jingdianbianhao</td>
+        <td>varchar(50)</td>
+        <td>景点编号 </td>
+    </tr>
+        <tr>
+        <td>jingdianmingcheng</td>
+        <td>varchar(255)</td>
+        <td>景点名称 </td>
+    </tr>
+        <tr>
+        <td>suoshudiqu</td>
+        <td>int</td>
+        <td>所属地区 </td>
+    </tr>
+        <tr>
+        <td>tupian</td>
+        <td>text</td>
+        <td>图片 </td>
+    </tr>
+        <tr>
+        <td>kaifangshijian</td>
+        <td>varchar(255)</td>
+        <td>开放时间 </td>
+    </tr>
+        <tr>
+        <td>fujinmeishi</td>
+        <td>text</td>
+        <td>附近美食 </td>
+    </tr>
+        <tr>
+        <td>dizhi</td>
+        <td>varchar(255)</td>
+        <td>地址 </td>
+    </tr>
+        <tr>
+        <td>piaojia</td>
+        <td>decimal(18, 2)</td>
+        <td>票价 </td>
+    </tr>
+        <tr>
+        <td>liulanliang</td>
+        <td>int</td>
+        <td>浏览量 </td>
+    </tr>
+        <tr>
+        <td>miaoshu</td>
+        <td>longtext</td>
+        <td>描述 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                                <tr>
+            <td colspan="3">
+                设置索引，
+                字段：suoshudiqu ，
+                关联表【diqu】中的id 字段            </td>
+        </tr>
+                </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【地区】模块,表名：<span style="color: #990000">diqu</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>diqumingcheng</td>
+        <td>varchar(255)</td>
+        <td>地区名称 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【旅游线路】模块,表名：<span style="color: #990000">lvyouxianlu</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>xianlubianhao</td>
+        <td>varchar(50)</td>
+        <td>线路编号 </td>
+    </tr>
+        <tr>
+        <td>xianlumingcheng</td>
+        <td>varchar(255)</td>
+        <td>线路名称 </td>
+    </tr>
+        <tr>
+        <td>tupian</td>
+        <td>text</td>
+        <td>图片 </td>
+    </tr>
+        <tr>
+        <td>chufadi</td>
+        <td>varchar(255)</td>
+        <td>出发地 </td>
+    </tr>
+        <tr>
+        <td>tujingdi</td>
+        <td>varchar(255)</td>
+        <td>途经地 </td>
+    </tr>
+        <tr>
+        <td>zhongdian</td>
+        <td>varchar(255)</td>
+        <td>终点 </td>
+    </tr>
+        <tr>
+        <td>jiage</td>
+        <td>decimal(18, 2)</td>
+        <td>价格 </td>
+    </tr>
+        <tr>
+        <td>liulanliang</td>
+        <td>int</td>
+        <td>浏览量 </td>
+    </tr>
+        <tr>
+        <td>xianlutese</td>
+        <td>longtext</td>
+        <td>线路特色 </td>
+    </tr>
+        <tr>
+        <td>xianlujianjie</td>
+        <td>longtext</td>
+        <td>线路简介 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【预定】模块,表名：<span style="color: #990000">yuding</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>lvyouxianluid</td>
+        <td>int</td>
+        <td>旅游线路id </td>
+    </tr>
+        <tr>
+        <td>xianlubianhao</td>
+        <td>varchar(50)</td>
+        <td>线路编号 </td>
+    </tr>
+        <tr>
+        <td>xianlumingcheng</td>
+        <td>varchar(255)</td>
+        <td>线路名称 </td>
+    </tr>
+        <tr>
+        <td>chufadi</td>
+        <td>varchar(255)</td>
+        <td>出发地 </td>
+    </tr>
+        <tr>
+        <td>tujingdi</td>
+        <td>varchar(255)</td>
+        <td>途经地 </td>
+    </tr>
+        <tr>
+        <td>zhongdian</td>
+        <td>varchar(255)</td>
+        <td>终点 </td>
+    </tr>
+        <tr>
+        <td>jiage</td>
+        <td>decimal(18, 2)</td>
+        <td>价格 </td>
+    </tr>
+        <tr>
+        <td>dingdanhao</td>
+        <td>varchar(50)</td>
+        <td>订单号 </td>
+    </tr>
+        <tr>
+        <td>yudingshijian</td>
+        <td>varchar(25)</td>
+        <td>预订时间 </td>
+    </tr>
+        <tr>
+        <td>yudingrenxingming</td>
+        <td>varchar(50)</td>
+        <td>预订人姓名 </td>
+    </tr>
+        <tr>
+        <td>lianxifangshi</td>
+        <td>varchar(50)</td>
+        <td>联系方式 </td>
+    </tr>
+        <tr>
+        <td>zhuangtai</td>
+        <td>varchar(50)</td>
+        <td>状态 </td>
+    </tr>
+        <tr>
+        <td>beizhu</td>
+        <td>text</td>
+        <td>备注 </td>
+    </tr>
+        <tr>
+        <td>yudingren</td>
+        <td>varchar(50)</td>
+        <td>预订人 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+        <tr>
+        <td>iszf</td>
+        <td>varchar(10)</td>
+        <td>是否支付 </td>
+    </tr>
+    
+                                <tr>
+            <td colspan="3">
+                设置索引，
+                字段：lvyouxianluid ，
+                关联表【lvyouxianlu】中字段id            </td>
+        </tr>
+                </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【地方美食】模块,表名：<span style="color: #990000">difangmeishi</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>meishibianhao</td>
+        <td>varchar(50)</td>
+        <td>美食编号 </td>
+    </tr>
+        <tr>
+        <td>mingcheng</td>
+        <td>varchar(255)</td>
+        <td>名称 </td>
+    </tr>
+        <tr>
+        <td>fujinjingdian</td>
+        <td>varchar(255)</td>
+        <td>附近景点 </td>
+    </tr>
+        <tr>
+        <td>fenlei</td>
+        <td>int</td>
+        <td>分类 </td>
+    </tr>
+        <tr>
+        <td>tupian</td>
+        <td>text</td>
+        <td>图片 </td>
+    </tr>
+        <tr>
+        <td>jiage</td>
+        <td>decimal(18, 2)</td>
+        <td>价格 </td>
+    </tr>
+        <tr>
+        <td>meishijianjie</td>
+        <td>text</td>
+        <td>美食简介 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                                <tr>
+            <td colspan="3">
+                设置索引，
+                字段：fenlei ，
+                关联表【meishifenlei】中的id 字段            </td>
+        </tr>
+                </tbody>
+</table>
+<p>&nbsp;</p>
+<table width=600 cellpadding="6" cellspacing="1" style="margin: 0 auto">
+    <tbody>
+    <tr>
+        <td colspan="3" bgcolor="#DEDEDE">
+            【美食分类】模块,表名：<span style="color: #990000">meishifenlei</span>
+        </td>
+    </tr>
+    <tr>
+        <td>字段名</td>
+        <td>字段类型</td>
+        <td>名称</td>
+    </tr>
+        <tr>
+        <td>id</td>
+        <td>int</td>
+        <td> (主键)</td>
+    </tr>
+        <tr>
+        <td>fenleimingcheng</td>
+        <td>varchar(255)</td>
+        <td>分类名称 </td>
+    </tr>
+        <tr>
+        <td>addtime</td>
+        <td>timestamp </td>
+        <td>添加时间 </td>
+    </tr>
+    
+                    </tbody>
+</table>
+<p>&nbsp;</p>
+
+
+</html>
