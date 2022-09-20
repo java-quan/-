@@ -1,0 +1,1108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuhong.labour.core.mapper.punchClock.PunchClockMapper">
+
+
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert ignore  into
+        labour_project_punch_clock(project_id,user_id,team_id,punch_time,punch_type,punch_status,longitude_number,latitude_number,punch_address,punch_distance,time_identification,gmt_created,gmt_modified,created_by,modified_by)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.projectId}, #{entity.userId}, #{entity.teamId}, #{entity.punchTime},
+            #{entity.punchType},#{entity.punchStatus}, #{entity.longitudeNumber}, #{entity.latitudeNumber},
+            #{entity.punchAddress}, #{entity.punchDistance},#{entity.timeIdentification},#{entity.gmtCreated},
+            #{entity.gmtModified}, #{entity.createdBy}, #{entity.modifiedBy})
+        </foreach>
+    </insert>
+
+	<insert id="insertRetryBatch" keyProperty="id" useGeneratedKeys="true">
+		insert ignore into
+		labour_project_punch_clock_retry(project_id,user_id,team_id,punch_time,punch_type,punch_status,longitude_number,latitude_number,punch_address,punch_distance,time_identification,gmt_created,gmt_modified,created_by,modified_by)
+		values
+		<foreach collection="entities" item="entity" separator=",">
+			(#{entity.projectId}, #{entity.userId}, #{entity.teamId}, #{entity.punchTime},
+			#{entity.punchType},#{entity.punchStatus}, #{entity.longitudeNumber}, #{entity.latitudeNumber},
+			#{entity.punchAddress}, #{entity.punchDistance},#{entity.timeIdentification},#{entity.gmtCreated},
+			#{entity.gmtModified}, #{entity.createdBy}, #{entity.modifiedBy})
+		</foreach>
+
+	</insert>
+
+	<insert id="insertBatch1" keyProperty="id" useGeneratedKeys="true">
+		insert into ${tableName} (project_id,user_id,team_id,punch_time,punch_type,punch_status,longitude_number,latitude_number,punch_address,punch_distance,time_identification,gmt_created,gmt_modified,created_by,modified_by) values
+		<foreach collection="entities" item="entity" separator=",">
+			(${entity.projectId}, ${entity.userId}, ${entity.teamId}, ${entity.punchTime},
+			${entity.punchType},${entity.punchStatus}, ${entity.longitudeNumber}, ${entity.latitudeNumber},
+			${entity.punchAddress}, ${entity.punchDistance},${entity.timeIdentification},${entity.gmtCreated},
+			${entity.gmtModified}, ${entity.createdBy}, ${entity.modifiedBy})
+		</foreach>
+	</insert>
+
+
+	<select id="selectRetry" resultType="com.yuhong.labour.core.entity.punchClock.PunchClockEntity">
+		select *
+		from labour_project_punch_clock_retry
+	</select>
+
+	<delete id="deleteRetry">
+		delete from labour_project_punch_clock_retry
+		where id=#{id}
+	</delete>
+
+
+
+
+
+	<select id="selectProjectPunch"  resultType="com.yuhong.labour.core.vo.punchClock.PunchClockVO">
+        SELECT
+	p.id 'id',
+	p.project_name AS 'projectName',
+	p.project_code AS 'projectCode',
+	pc.count 'punchCount',
+	p.WBS 'WBS',
+	p.project_manage_name 'projectManageName',
+	p.project_address 'punchAddress',
+	p.construction_part 'constructionPart'
+FROM
+	( SELECT project_id, COUNT( * ) 'count' FROM labour_project_punch_clock GROUP BY project_id ) pc
+	INNER JOIN labour_project p ON pc.project_id = p.id
+	${ew.customSqlSegment}
+    </select>
+
+    <select id="selectUserPunch" resultType="com.yuhong.labour.core.vo.punchClock.PunchUserClockVO">
+        SELECT
+	pc.id,
+	ROUND((co.punch_time-ci.punch_time)/10000,2)  totalHours,
+	pc.user_id userId,
+	co.punch_time clockOut,
+	lp.project_name projectName,
+	lp.project_code projectCode,
+	lp.WBS WBS,
+	lp.project_manage_name projectManagerName,
+	co.punch_address punchAddress,
+	co.longitude_number longitudeNumber,
+	co.latitude_number latitudeNumber,
+	co.punch_distance punchDistance,
+	co.affirm_status affirmStatus,
+	co.affirm_way affirmWay,
+	ci.punch_time clockIn,
+	io.operation_type operationType
+FROM
+	labour_project_punch_clock pc
+INNER JOIN
+	(
+	SELECT
+		user_id,
+		punch_status,
+		punch_time,
+		affirm_status,
+		punch_address,
+		punch_distance,
+		longitude_number,
+		latitude_number,
+		affirm_way
+	from
+		labour_project_punch_clock
+	where
+		punch_status =1
+	and
+		affirm_status =1
+	) co ON pc.user_id =co.user_id and pc.punch_time =co.punch_time
+	INNER JOIN
+	(
+	SELECT
+		user_id,
+		punch_time
+	FROM
+		labour_project_punch_clock
+	WHERE
+		punch_status = 0
+	AND
+		affirm_status = 1
+	)  ci
+	ON pc.user_id = ci.user_id
+INNER JOIN labour_project lp ON pc.project_id = lp.id
+LEFT JOIN (	     SELECT
+        l1.user_id ,
+        l1.operation_type
+        FROM
+        labour_insurance_operation l1
+        INNER JOIN
+        (SELECT user_id, MAX( operation_time ) as operation_time FROM labour_insurance_operation GROUP BY user_id ) l2
+        ON l1.user_id = l2.user_id
+        AND l1.operation_time = l2.operation_time) io ON pc.user_id =io.user_id
+        ${ew.customSqlSegment}
+    </select>
+    <select id="selectTeamPunch" resultType="com.yuhong.labour.core.vo.punchClock.PunchTeamClockVO">
+	SELECT
+	pc.project_id projectId,
+	pc.team_id teamId,
+	lp.project_name projectName,
+	lp.project_code projectCode,
+	lp.WBS WBS,
+	lp.project_manage_name projectManagerName,
+	SUM(ROUND((co.punch_time-ci.punch_time)/10000,2)) totalTime
+	FROM
+	labour_project_punch_clock pc
+	INNER JOIN
+	(
+	SELECT
+		user_id,
+		punch_time
+	from
+		labour_project_punch_clock
+	where
+		punch_status =1
+	and
+		affirm_status =1
+	) co ON pc.user_id =co.user_id and pc.punch_time =co.punch_time
+	INNER JOIN
+	(
+	SELECT
+		user_id,
+		punch_time
+	FROM
+		labour_project_punch_clock
+	WHERE
+	punch_status = 0
+	AND
+	affirm_status = 1
+	)  ci
+	ON pc.user_id = ci.user_id
+INNER JOIN labour_project lp ON pc.project_id = lp.id
+GROUP BY pc.project_id
+${ew.customSqlSegment}
+	</select>
+    <select id="selectAttendanceRecordPunch"
+			resultType="com.yuhong.labour.core.vo.punchClock.PunchAttendanceRecordClockVO">
+		    	SELECT
+	ROUND((co.punch_time-ci.punch_time)/10000,2) as  'totalHours',
+	pc.user_id userId,
+	ci.punch_time clockIn,
+	co.punch_time clockOut,
+	lp.WBS WBS,
+	co.punch_address punchAddress,
+	co.affirm_status affirmStatus
+FROM
+	labour_project_punch_clock pc
+INNER JOIN
+	(
+	SELECT
+		user_id,
+		punch_time,
+		affirm_status,
+		punch_address,
+		affirm_way
+	from
+		labour_project_punch_clock
+	where
+		punch_status =1
+	and
+		affirm_status =1
+	) co ON pc.user_id =co.user_id and pc.punch_time =co.punch_time
+	INNER JOIN
+	(
+	SELECT
+		user_id,
+		punch_time
+	FROM
+		labour_project_punch_clock
+	WHERE
+		punch_status = 0
+	AND
+		affirm_status = 1
+	)  ci
+	ON pc.user_id = ci.user_id
+INNER JOIN labour_project lp ON pc.project_id = lp.id
+${ew.customSqlSegment}
+	</select>
+	<select id="selectUserBatch" parameterType="java.lang.Long" resultType="com.yuhong.labour.core.vo.punchClock.PunchUserClockVO">
+		SELECT
+		pc.id,
+		ROUND((co.punch_time-ci.punch_time)/10000,2)  totalHours,
+		pc.user_id userId,
+		co.punch_time clockOut,
+		lp.project_name projectName,
+		lp.project_code projectCode,
+		lp.WBS WBS,
+		lp.project_manage_name projectManagerName,
+		co.punch_address punchAddress,
+		co.longitude_number longitudeNumber,
+		co.latitude_number latitudeNumber,
+		co.punch_distance punchDistance,
+		co.affirm_status affirmStatus,
+		co.affirm_way affirmWay,
+		ci.punch_time clockIn,
+		io.operation_type operationType
+		FROM
+		labour_project_punch_clock pc
+		INNER JOIN
+		(
+		SELECT
+		user_id,
+		punch_status,
+		punch_time,
+		affirm_status,
+		punch_address,
+		punch_distance,
+		longitude_number,
+		latitude_number,
+		affirm_way
+		from
+		labour_project_punch_clock
+		where
+		punch_status =1
+		and
+		affirm_status =1
+		) co ON pc.user_id =co.user_id and pc.punch_time =co.punch_time
+		INNER JOIN
+		(
+		SELECT
+		user_id,
+		punch_time
+		FROM
+		labour_project_punch_clock
+		WHERE
+		punch_status = 0
+		AND
+		affirm_status = 1
+		)  ci
+		ON pc.user_id = ci.user_id
+		INNER JOIN labour_project lp ON pc.project_id = lp.id
+		LEFT JOIN (	     SELECT
+		l1.user_id ,
+		l1.operation_type
+		FROM
+		labour_insurance_operation l1
+		INNER JOIN
+		(SELECT user_id, MAX( operation_time ) as operation_time FROM labour_insurance_operation GROUP BY user_id ) l2
+		ON l1.user_id = l2.user_id
+		AND l1.operation_time = l2.operation_time) io ON pc.user_id =io.user_id
+		where pc.user_id in
+		<foreach collection="ids" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	<select id="selectProjectBatch" parameterType="java.lang.Long" resultType="com.yuhong.labour.core.vo.punchClock.PunchAttendanceRecordClockVO">
+   	SELECT
+	ROUND((co.punch_time-ci.punch_time)/10000,2) as  'totalHours',
+	pc.user_id userId,
+	ci.punch_time clockIn,
+	co.punch_time clockOut,
+	lp.WBS WBS,
+	co.punch_address punchAddress,
+	co.affirm_status affirmStatus
+FROM
+	labour_project_punch_clock pc
+INNER JOIN
+	(
+	SELECT
+		user_id,
+		punch_time,
+		affirm_status,
+		punch_address,
+		affirm_way
+	from
+		labour_project_punch_clock
+	where
+		punch_status =1
+	and
+		affirm_status =1
+	) co ON pc.user_id =co.user_id and pc.punch_time =co.punch_time
+	INNER JOIN
+	(
+	SELECT
+		user_id,
+		punch_time
+	FROM
+		labour_project_punch_clock
+	WHERE
+		punch_status = 0
+	AND
+		affirm_status = 1
+	)  ci
+	ON pc.user_id = ci.user_id
+INNER JOIN labour_project lp ON pc.project_id = lp.id
+where pc.user_id in
+		<foreach collection="ids" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	<select id="selectTeamBatch"
+			resultType="com.yuhong.labour.core.vo.punchClock.PunchAttendanceRecordClockVO">
+		SELECT
+		ROUND((co.punch_time-ci.punch_time)/10000,2) as  'totalHours',
+		pc.user_id userId,
+		ci.punch_time clockIn,
+		co.punch_time clockOut,
+		lp.WBS WBS,
+		co.punch_address punchAddress,
+		co.affirm_status affirmStatus
+		FROM
+		labour_project_punch_clock pc
+		INNER JOIN
+		(
+		SELECT
+		user_id,
+		punch_time,
+		affirm_status,
+		punch_address,
+		affirm_way
+		from
+		labour_project_punch_clock
+		where
+		punch_status =1
+		and
+		affirm_status =1
+		) co ON pc.user_id =co.user_id and pc.punch_time =co.punch_time
+		INNER JOIN
+		(
+		SELECT
+		user_id,
+		punch_time
+		FROM
+		labour_project_punch_clock
+		WHERE
+		punch_status = 0
+		AND
+		affirm_status = 1
+		)  ci
+		ON pc.user_id = ci.user_id
+		INNER JOIN labour_project lp ON pc.project_id = lp.id
+		where pc.user_id in
+		<foreach collection="ids" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	<select id="selectAllocList" resultType="com.yuhong.labour.core.entity.fee.AllocBase">
+		SELECT user_id workerId,project_id projectId from labour_project_punch_clock where affirm_status =0 GROUP BY user_id
+	</select>
+
+
+	<select id="weekAllocLists" resultType="com.yuhong.labour.core.entity.fee.WeekAlloc"  >
+	SELECT
+		lp.project_manage_id managerId,
+		pc.user_id hapuserId,
+		pc.project_id projectId,
+		pc.team_id teamId,
+		lp.WBS projectWbs,
+		lp.project_name projectName,
+		MAX(co.punch_time) endTime,
+		MIN(ci.punch_time) startTime,
+		COUNT(*) totalDay
+		FROM
+		labour_project_punch_clock pc
+		INNER JOIN
+		(
+		SELECT
+		user_id,
+		punch_time
+		from
+		labour_project_punch_clock
+		where
+		punch_status =1
+		and
+		affirm_status =1
+		and
+		punch_time between CONCAT(DATE_SUB(CURRENT_DATE,INTERVAL 7 DAY),' ','00:30:00')  and CONCAT(CURRENT_DATE,' ','00:30:00')
+		) co ON pc.user_id =co.user_id and pc.punch_time =co.punch_time
+		INNER JOIN
+		(
+		SELECT
+		user_id,
+		punch_time
+		FROM
+		labour_project_punch_clock
+		WHERE
+		punch_status = 0
+		AND
+		affirm_status = 1
+		and
+		punch_time between CONCAT(DATE_SUB(CURRENT_DATE,INTERVAL 7 DAY),' ','00:30:00')  and CONCAT(CURRENT_DATE,' ','00:30:00')
+		)  ci
+		ON pc.user_id = ci.user_id
+		INNER JOIN labour_project lp on pc.project_id =lp.id
+		GROUP BY pc.user_id
+ 	</select>
+
+
+	<select id="projectEntryAndExitRecords"
+			resultType="com.yuhong.labour.core.vo.punchClock.PunchClockDetailsVO">
+					SELECT
+			pc.id id,
+			pc.user_id userId,
+			pc.project_id projectId,
+			pc.team_id teamId,
+			ci.punch_time clockIn,
+			co.punch_time clockOut,
+			co.latitude_number outlatitudeNumber,
+			co.longitude_number outlongitudeNumber,
+			ci.latitude_number inlatitudeNumber,
+			ci.longitude_number inlongitudeNumber,
+			lp.WBS projectWBS,
+			lp.project_manage_name projectManagerName,
+			lp.project_address punchAddress
+		FROM
+			labour_project_punch_clock pc
+		INNER JOIN
+			(
+			SELECT
+				user_id,
+				punch_time,
+				affirm_status,
+				punch_address,
+				affirm_way,
+				longitude_number,
+				latitude_number
+			from
+				labour_project_punch_clock
+			where
+				punch_status =1
+			and
+				affirm_status =1
+			) co ON pc.user_id =co.user_id and pc.punch_time =co.punch_time
+			INNER JOIN
+			(
+			SELECT
+				user_id,
+				punch_time,
+				longitude_number,
+				latitude_number
+			FROM
+				labour_project_punch_clock
+			WHERE
+				punch_status = 0
+			AND
+				affirm_status = 1
+			)  ci
+			ON pc.user_id = ci.user_id
+		INNER JOIN labour_project lp ON pc.project_id = lp.id
+		<if test="id != null">
+			<if test="isAuto == 1">
+				<![CDATA[ and a.id < #{id} ]]>
+			</if>
+			<if test="isAuto == 2">
+				and pc.user_id = #{id}
+			</if>
+		</if>
+		<if test="startDate != null">
+			and ci.punch_time >= #{startDate}
+		</if>
+		<if test="endDate != null">
+			<![CDATA[ and co.punch_time <= #{endDate} ]]>
+		</if>
+		order by pc.id desc
+		limit #{limit}
+	</select>
+	<select id="selectAppPunchTeamList" resultType="com.yuhong.labour.core.vo.punchClock.AppPunchTeamClockVO"   >
+				SELECT
+			DATE_FORMAT(ci.punch_time,'%m月%d日') dateNow,
+			ci.user_id userId,
+			ci.project_id projectId,
+			ci.team_id teamId,
+			DATE_FORMAT(ci.punch_time,'%H:%i')  startTime,
+			DATE_FORMAT(co.punch_time,'%H:%i') endTime
+		FROM
+			(
+			SELECT
+			l1.user_id,
+			l1.project_id,
+			l1.team_id,
+			l1.punch_time,
+			l1.time_identification,
+			l2.affirm_status
+			FROM
+			(
+			SELECT
+			user_id,
+			project_id,
+			team_id,
+			MIN( punch_time ) punch_time,
+			time_identification
+			FROM
+			labour_project_punch_clock
+			WHERE
+			punch_status = 0
+			AND team_id =  #{appTeam.teamId}
+			GROUP BY
+			time_identification
+			) l1
+			INNER JOIN ( SELECT user_id, project_id, team_id, punch_time, time_identification, affirm_status FROM labour_project_punch_clock WHERE punch_status = 0 ) l2 ON l1.project_id = l2.project_id
+			AND l1.team_id = l2.team_id
+			AND l1.punch_time = l2.punch_time
+			AND l1.time_identification = l2.time_identification
+			) ci
+			LEFT JOIN (
+			SELECT
+				user_id,
+				project_id,
+				team_id,
+				punch_time,
+				time_identification
+			FROM
+				labour_project_punch_clock
+			WHERE
+				punch_status = 1
+				AND team_id = #{appTeam.teamId}
+			GROUP BY
+				time_identification
+			) co ON ci.user_id = co.user_id
+			AND ci.project_id = co.project_id
+			AND DATE(ci.punch_time) =DATE(co.punch_time)
+			AND ci.team_id = co.team_id
+		ORDER BY
+			ci.punch_time DESC
+	</select>
+	<select id="selectAppPunchProjectList"
+			resultType="com.yuhong.labour.core.vo.punchClock.AppPunchProjectClockVO">
+			SELECT
+			DATE_FORMAT(ci.punch_time,'%m月%d日') dateNow,
+			ci.user_id userId,
+			ci.project_id projectId,
+			ci.team_id teamId,
+			DATE_FORMAT(ci.punch_time,'%H:%i')  startTime,
+			DATE_FORMAT(co.punch_time,'%H:%i') endTime,
+			ci.affirm_status affirmStatus
+			FROM
+			(
+			SELECT
+			l1.user_id,
+			l1.project_id,
+			l1.team_id,
+			l1.punch_time,
+			l1.time_identification,
+			l2.affirm_status
+			FROM
+			(
+			SELECT
+			user_id,
+			project_id,
+			team_id,
+			MIN( punch_time ) punch_time,
+			time_identification
+			FROM
+			labour_project_punch_clock
+			WHERE
+			punch_status = 0
+			AND project_id =  #{appProject.projectId}
+			GROUP BY
+			time_identification
+			) l1
+			INNER JOIN ( SELECT user_id, project_id, team_id, punch_time, time_identification, affirm_status FROM labour_project_punch_clock WHERE punch_status = 0 ) l2 ON l1.project_id = l2.project_id
+			AND l1.team_id = l2.team_id
+			AND l1.punch_time = l2.punch_time
+			AND l1.time_identification = l2.time_identification
+			) ci
+			LEFT JOIN (
+			SELECT
+			user_id,
+			project_id,
+			team_id,
+			MAX(punch_time) punch_time,
+			time_identification
+			FROM
+			labour_project_punch_clock
+			WHERE
+			punch_status = 1
+			AND project_id = #{appProject.projectId}
+			GROUP BY
+			time_identification
+			) co ON ci.user_id = co.user_id
+			AND ci.project_id = co.project_id
+			AND ci.team_id = co.team_id
+			AND DATE(ci.punch_time) =DATE(co.punch_time)
+			<where>
+<!--				<if test="appProject.endDate != null and  appProject.endDate != '' and appProject.startDate != null and appProject.startDate != ''">-->
+<!--				and ci.punch_time > #{appProject.startDate}-->
+<!--				and	 #{appProject.endDate} > ci.punch_time-->
+<!--				</if>-->
+				<if test="appProject.times != null and appProject.times != ''">
+					and	ci.punch_time like CONCAT('%',#{appProject.times},'%')
+				</if>
+			</where>
+		ORDER BY
+			ci.punch_time DESC
+	</select>
+	<select id="selectAppPunchProjectRecordList"
+			resultType="com.yuhong.labour.core.vo.punchClock.AppPunchProjectRecordVO">
+			SELECT
+		project_id projectId,
+		DATE_FORMAT( punch_time,'%m月%d日') punchTime,
+		COUNT( DISTINCT user_id ) punchCount
+		FROM
+			labour_project_punch_clock
+		WHERE
+			punch_status = 0
+			AND project_id = #{appPunchProjectRecordClockVO.projectId}
+
+			and punch_time like CONCAT('%',#{appPunchProjectRecordClockVO.times},'%')
+		GROUP BY
+			DATE( punch_time )
+	</select>
+
+
+	<resultMap id="workerMap" type="com.yuhong.labour.core.vo.punchClock.WorkerVO">
+		<result property="userId" column="userId"></result>
+		<result property="teamId" column="teamId"></result>
+		<result property="startTime" column="startTime"></result>
+		<result property="endTime" column="endTime"></result>
+		<result property="distance" column="distance"></result>
+		<result property="affirmStatus" column="affirmStatus"></result>
+		<result property="affirmWay" column="affirmWay"></result>
+	</resultMap>
+
+	<resultMap id="teamMap" type="com.yuhong.labour.core.vo.punchClock.TeamVO">
+		<result property="teamName" column="teamName"></result>
+		<result property="tid" column="tid"></result>
+	</resultMap>
+
+	<resultMap id="EmpPunchClockMap" type="com.yuhong.labour.core.vo.punchClock.EmpPunchClockVO">
+		<result property="WBS" column="WBS"></result>
+		<result property="projectName" column="projectName"></result>
+		<!--        一对多-->
+		<collection property="workerList"
+					resultMap="workerMap"
+					javaType="java.util.List"/>
+		<collection property="teamList"
+					resultMap="teamMap"
+					javaType="java.util.List"/>
+	</resultMap>
+
+	<select id="selectEmpPunchClock" resultMap="EmpPunchClockMap" parameterType="com.yuhong.labour.core.request.punchClock.PunchEmpReq">
+
+
+SELECT
+		lp.WBS WBS,
+		lp.project_name projectName,
+		lppc1.team_id tid,
+		lppc.user_id userId,
+		lppc.team_id teamId,
+		lppc.startTime startTime,
+	  	lppc.endTime endTime,
+	  	lppc.punch_distance distance,
+	  	lppc.affirmStatus affirmStatus,
+	  	lppc.affirm_way affirmWay
+	FROM
+		labour_project lp
+	RIGHT JOIN (
+	SELECT
+		ci.user_id,
+		ci.project_id,
+		ci.team_id,
+		ci.punch_time startTime,
+		co.punch_time endTime,
+		ci.affirm_status affirmStatus,
+		ci.punch_distance,
+		ci.affirm_way
+	FROM
+		(
+		SELECT
+			l1.user_id,
+			l1.project_id,
+			l1.team_id,
+			l1.punch_time,
+			l1.time_identification,
+			l2.affirm_status,
+			l2.punch_distance,
+			l2.affirm_way
+		FROM
+			(
+			SELECT
+				user_id,
+				project_id,
+				team_id,
+				min( punch_time ) AS punch_time,
+				time_identification
+			FROM
+				labour_project_punch_clock
+			WHERE
+				punch_status = 0
+			GROUP BY
+				time_identification
+			) l1
+			INNER JOIN ( SELECT user_id, project_id, team_id, punch_time, time_identification, affirm_status,punch_distance,affirm_way  FROM labour_project_punch_clock WHERE punch_status = 0 ) l2 ON l1.project_id = l2.project_id
+			AND l1.team_id = l2.team_id
+			AND l1.punch_time = l2.punch_time
+			AND l1.time_identification = l2.time_identification
+		) ci
+		LEFT JOIN (
+		SELECT
+			user_id,
+			project_id,
+			team_id,
+			max( punch_time ) AS punch_time,
+			time_identification
+		FROM
+			labour_project_punch_clock
+		WHERE
+			punch_status = 1
+		GROUP BY
+			time_identification
+		) co ON ci.user_id = co.user_id
+		AND ci.project_id = co.project_id
+		AND ci.team_id = co.team_id
+		AND DATE( ci.punch_time ) = DATE( co.punch_time )
+) lppc ON lp.id = lppc.project_id
+	RIGHT JOIN ( SELECT DISTINCT team_id, project_id FROM labour_project_punch_clock ) lppc1 ON lp.id = lppc1.project_id
+	<where>
+		1=1
+		<if test="punchEmpReq.wbs!=null and punchEmpReq.wbs!=''">
+			and lp.WBS = #{punchEmpReq.wbs}
+		</if>
+		<if test="punchEmpReq.manager!=null and punchEmpReq.manager!=''">
+			AND lp.project_manage_id = #{punchEmpReq.manager}
+		</if>
+		<if test="punchEmpReq.type!=null and punchEmpReq.type!=''">
+			AND lppc.affirmStatus = #{punchEmpReq.type}
+		</if>
+		<if test="punchEmpReq.startDateTime!=null and punchEmpReq.startDateTime!=''">
+			AND lppc.startTime > #{punchEmpReq.startDateTime}
+		</if>
+		<if test="punchEmpReq.endDateTime!=null and punchEmpReq.endDateTime!=''">
+			AND #{punchEmpReq.endDateTime} > lppc.endTime
+		</if>
+<!--		<if test="punchEmpReq.userList!=null and punchEmpReq.userList!=''">-->
+<!--			AND lppc.affirmStatus = #{punchEmpReq.userList}-->
+<!--		</if>-->
+	</where>
+	</select>
+	<select id="selectAppPunchUserList" resultType="com.yuhong.labour.core.vo.punchClock.AppPunchUserClockVO">
+			SELECT
+			DATE_FORMAT( ps0.punch_time,'%m月%d日') dateNow,
+			ps0.user_id,
+			ps0.project_id,
+			ps0.team_id,
+			DATE_FORMAT(ps0.punch_time,'%H:%i')  startTime,
+			DATE_FORMAT(ps1.punch_time,'%H:%i') endTime,
+			ps0.affirm_status affirmStatus
+			FROM
+			(
+			SELECT
+			l1.user_id,
+			l1.project_id,
+			l1.team_id,
+			l1.punch_time,
+			l1.time_identification,
+			l2.affirm_status
+			FROM
+			(
+			SELECT
+			user_id,
+			project_id,
+			team_id,
+			MIN( punch_time ) punch_time,
+			time_identification
+			FROM
+			labour_project_punch_clock
+			WHERE
+			punch_status = 0
+			AND project_id =  #{appPunchUserClockVO.projectId}
+			AND user_id = #{appPunchUserClockVO.userId}
+			GROUP BY
+			time_identification
+			) l1
+			INNER JOIN ( SELECT user_id, project_id, team_id, punch_time, time_identification, affirm_status FROM labour_project_punch_clock WHERE punch_status = 0 ) l2 ON l1.project_id = l2.project_id
+			AND l1.team_id = l2.team_id
+			AND l1.punch_time = l2.punch_time
+			AND l1.time_identification = l2.time_identification
+			) ps0
+			LEFT JOIN (
+			SELECT
+			user_id,
+			project_id,
+			team_id,
+			MAX( punch_time ) punch_time,
+			time_identification
+			FROM
+			labour_project_punch_clock
+			WHERE
+			project_id = #{appPunchUserClockVO.projectId}
+			AND user_id = #{appPunchUserClockVO.userId}
+			AND punch_status = 1
+		GROUP BY
+			time_identification
+			) ps1 ON ps0.user_id = ps1.user_id
+			AND ps0.project_id = ps1.project_id
+			AND ps0.team_id = ps1.team_id
+			AND DATE(ps0.punch_time) = DATE(ps1.punch_time)
+			and ps0.punch_time like CONCAT('%',#{appPunchUserClockVO.times},'%')
+	</select>
+	<select id="selectAppPunchWorkersList"
+			resultType="com.yuhong.labour.core.vo.punchClock.AppPunchWorkersClockVO">
+		SELECT
+		DATE_FORMAT(ps0.punch_time,'%m月%d日') dateNow,
+		ps0.user_id userId,
+		ps0.project_id projectId,
+		ps0.team_id teamId,
+		ps0.user_name userName,
+		DATE_FORMAT(ps0.punch_time,'%H:%i')  startTime,
+		DATE_FORMAT(ps1.punch_time,'%H:%i') endTime,
+		ps0.affirm_status affirmStatus
+		FROM
+		(
+		SELECT
+		l1.user_id,
+		l1.project_id,
+		l1.team_id,
+		l1.user_name,
+		l1.punch_time,
+		l1.time_identification,
+		l2.affirm_status
+		FROM
+		(
+		SELECT
+		user_id,
+		project_id,
+		team_id,
+		user_name,
+		MIN( punch_time ) punch_time,
+		time_identification
+		FROM
+		labour_project_punch_clock
+		WHERE
+		punch_status = 0
+		AND project_id =  #{appPunchWorkersClockVO.projectId}
+		GROUP BY
+		time_identification
+		) l1
+		INNER JOIN ( SELECT user_id, project_id, team_id, punch_time, time_identification, affirm_status FROM labour_project_punch_clock WHERE punch_status = 0 ) l2 ON l1.project_id = l2.project_id
+		AND l1.team_id = l2.team_id
+		AND l1.punch_time = l2.punch_time
+		AND l1.time_identification = l2.time_identification
+		) ps0
+		LEFT JOIN (
+		SELECT
+		user_id,
+		project_id,
+		team_id,
+		MAX(punch_time) punch_time,
+		time_identification
+		FROM
+		labour_project_punch_clock
+		WHERE
+		project_id = #{appPunchWorkersClockVO.projectId}
+		AND punch_status = 1
+		GROUP BY time_identification
+		) ps1 ON ps0.user_id = ps1.user_id
+		AND ps0.project_id = ps1.project_id
+		AND ps0.team_id = ps1.team_id
+		AND DATE(ps0.punch_time) = DATE(ps1.punch_time)
+		<where>
+			ps0.punch_time like CONCAT('%',#{appPunchWorkersClockVO.times},'%')
+			<if test="appPunchWorkersClockVO.userName != null and appPunchWorkersClockVO.userName != ''">
+					and ps0.user_name like CONCAT('%',#{appPunchWorkersClockVO.userName},'%')
+			</if>
+		</where>
+	</select>
+	<select id="selectAppPunchDataBoardList"
+			resultType="com.yuhong.labour.core.vo.punchClock.AppPunchDataBoardVO">
+
+		SELECT
+			spn.project_id projectId,
+			spn.signPeopleNumber,
+			sc.signCount,
+			sapn.signAffirmPeopleNumber,
+			sac.signAffirmCount,
+			soc.signOutCount
+		FROM
+			(
+			SELECT
+				project_id,
+				COUNT( DISTINCT time_identification ) signPeopleNumber
+			FROM
+				labour_project_punch_clock
+				WHERE
+				punch_status = 0
+				AND punch_time LIKE CONCAT( '%', #{times}, '%' )
+			) spn -- 打卡人数
+			INNER JOIN ( SELECT project_id, COUNT( * ) signCount FROM labour_project_punch_clock WHERE
+			punch_time LIKE CONCAT( '%', #{times}, '%' ) ) sc -- 打卡人次
+			ON spn.project_id = sc.project_id
+			INNER JOIN (
+			SELECT
+				project_id,
+				COUNT( DISTINCT time_identification ) signAffirmPeopleNumber
+			FROM
+				labour_project_punch_clock
+				WHERE
+				punch_status = 0
+				AND affirm_status = 1
+				AND punch_time LIKE CONCAT( '%', #{times}, '%' )
+			) sapn -- 签到确认人数
+			ON spn.project_id = sapn.project_id
+			INNER JOIN (
+			SELECT
+				project_id,
+				COUNT( * ) signAffirmCount
+			FROM
+				labour_project_punch_clock
+				WHERE
+				punch_status = 0
+				AND affirm_status = 1
+				AND punch_time LIKE CONCAT( '%', #{times}, '%' )
+			) sac -- 签到确认次数
+			ON sac.project_id = spn.project_id
+			INNER JOIN (
+			SELECT
+				project_id,
+				COUNT( * ) signOutCount
+			FROM
+				labour_project_punch_clock
+				WHERE
+				punch_status = 1
+				AND punch_time LIKE CONCAT( '%',#{times}, '%' )
+			) soc -- 签退
+			ON soc.project_id = spn.project_id
+		WHERE
+			spn.project_id = #{projectId}
+	</select>
+	<select id="selectAppAutonomouslyList"
+			resultType="com.yuhong.labour.core.vo.punchClock.AppAutonomouslyClockVO">
+SELECT
+			DATE_FORMAT( ps0.punch_time,'%m月%d日') dateNow,
+			ps0.user_id,
+			ps0.project_id,
+			ps0.team_id,
+			DATE_FORMAT(ps0.punch_time,'%H:%i')  startTime,
+			DATE_FORMAT(ps1.punch_time,'%H:%i') endTime,
+			ps0.affirm_status affirmStatus
+			FROM
+			(
+			SELECT
+			l1.user_id,
+			l1.project_id,
+			l1.team_id,
+			l1.punch_time,
+			l1.time_identification,
+			l2.affirm_status
+			FROM
+			(
+			SELECT
+			user_id,
+			project_id,
+			team_id,
+			MIN( punch_time ) punch_time,
+			time_identification
+			FROM
+			labour_project_punch_clock
+			WHERE
+			punch_status = 0
+			AND punch_type =0
+			AND project_id =  #{appAutomonouslyClockReq.projectId}
+			AND user_id = #{appAutomonouslyClockReq.userId}
+			GROUP BY
+			time_identification
+			) l1
+			INNER JOIN ( SELECT user_id, project_id, team_id, punch_time, time_identification, affirm_status FROM labour_project_punch_clock WHERE punch_status = 0 AND punch_type =0 ) l2 ON l1.project_id = l2.project_id
+			AND l1.team_id = l2.team_id
+			AND l1.punch_time = l2.punch_time
+			AND l1.time_identification = l2.time_identification
+			) ps0
+			LEFT JOIN (
+			SELECT
+			user_id,
+			project_id,
+			team_id,
+			MAX( punch_time ) punch_time,
+			time_identification
+			FROM
+			labour_project_punch_clock
+			WHERE
+			project_id = #{appAutomonouslyClockReq.projectId}
+			AND user_id = #{appAutomonouslyClockReq.userId}
+			AND punch_status = 1
+			AND punch_type =0
+		GROUP BY
+			time_identification
+			) ps1 ON ps0.user_id = ps1.user_id
+			AND ps0.project_id = ps1.project_id
+			AND ps0.team_id = ps1.team_id
+			AND DATE(ps0.punch_time) = DATE(ps1.punch_time)
+			and ps0.punch_time like CONCAT('%',#{appAutomonouslyClockReq.times},'%')
+	</select>
+	<select id="selectAffirmCiById" resultType="com.yuhong.labour.core.vo.punchClock.AppPunchUserClockVO">
+		SELECT MIN(punch_time) dateNow,user_id userId ,project_id projectId  FROM labour_project_punch_clock
+	<where>
+		 project_id =#{map.projectId} AND punch_status =0 AND affirm_status =0
+		<if test="map.userId!=null and map.userId!=null">
+			and user_id = #{map.userId} AND time_identification = #{map.ciTime}
+		</if>
+	</where>
+	</select>
+
+	<select id="selectAffirmCoById" resultType="com.yuhong.labour.core.vo.punchClock.AppPunchUserClockVO">
+		SELECT MAX(punch_time) dateNow,user_id userId ,project_id projectId  FROM labour_project_punch_clock
+		<where>
+			project_id =#{map.projectId}  AND punch_status =1 AND affirm_status =0
+			<if test="map.userId!=null and map.userId!=null">
+				and user_id = #{map.userId} AND time_identification = #{map.ciTime}
+			</if>
+		</where>
+	</select>
+	<select id="selectPunchCount" resultType="com.yuhong.labour.core.vo.punchClock.AppPunchProjectRecordClockVO">
+			SELECT DATE(punch_time) times,COUNT(*) projectId  FROM labour_project_punch_clock WHERE user_id = #{map.userId} AND project_id = #{map.projectId} AND punch_status =0 and affirm_status=1 and punch_time > #{map.startTime} and	#{map.endTime} > punch_time GROUP BY DATE(punch_time) ORDER BY projectId DESC
+	</select>
+	<select id="selectProjectId" resultType="java.lang.Long">
+		SELECT project_id FROM  labour_project_punch_clock WHERE user_id = #{map.userId} AND project_id = #{map.projectId} AND punch_status =0 AND punch_time LIKE CONCAT('%',#{map.times},'%') ORDER BY punch_time DESC
+	</select>
+	<select id="selectAllUserPunchClockCi" resultType="com.yuhong.labour.core.vo.punchClock.AppPunchUserClockVO">
+		SELECT MIN(punch_time) dateNow,user_id userId ,project_id projectId  FROM labour_project_punch_clock
+			punch_time LIKE CONCAT('%',#{map.times},'%') AND project_id =#{map.projectId} and  punch_status =0 AND affirm_status =0 group by user_id
+	</select>
+	<select id="selectAllUserPunchClockCo"
+			resultType="com.yuhong.labour.core.vo.punchClock.AppPunchUserClockVO">
+		SELECT MAX(punch_time) dateNow,user_id userId ,project_id projectId  FROM labour_project_punch_clock
+			punch_time LIKE CONCAT('%',#{map.times},'%') AND project_id =#{map.projectId} and  punch_status =1 AND affirm_status =0 group by user_id
+	</select>
+	<select id="selectPunchAffirmUserIdAndProjectId"
+			resultType="com.yuhong.labour.core.request.punchClock.PunchUserIdAndProjectId">
+				SELECT
+				s1.user_id userId,s1.project_id projectId
+				FROM
+				(
+				SELECT
+				user_id,
+				project_id
+				FROM
+				labour_project_punch_clock
+				WHERE
+				punch_status = 0
+				AND affirm_status = 1
+				AND user_id in
+				<foreach collection="user" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+				AND project_id in
+				<foreach collection="project" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+				AND punch_time LIKE CONCAT( '%', DATE_SUB(CURRENT_DATE,INTERVAL 1 DAY), '%' )
+				) s1
+				INNER JOIN (
+				SELECT
+				user_id,
+				project_id
+				FROM
+				labour_project_punch_clock
+				WHERE
+				punch_status = 1
+				AND affirm_status = 1
+				AND user_id in
+				<foreach collection="user" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+				AND project_id in
+				<foreach collection="project" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+				AND punch_time LIKE CONCAT( '%',DATE_SUB(CURRENT_DATE,INTERVAL 1 DAY), '%' )
+				) s2
+				ON s1.user_id =s2.user_id AND s1.project_id = s2.project_id
+		<!--		<foreach collection="ids" item="item" open="(" separator="," close=")">-->
+<!--			#{item}-->
+<!--		</foreach>-->
+	</select>
+
+
+</mapper>
